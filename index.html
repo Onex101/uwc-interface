@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,6 +16,7 @@
             min-height: 100vh;
             background-color: #f0f0f0;
         }
+
         .container {
             display: flex;
             justify-content: space-around;
@@ -22,32 +24,42 @@
             width: 100%;
             padding: 20px;
         }
+
         .card {
             background-color: #fff;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 45%; /* Adjust width as needed */
-            min-width: 300px; /* Set a minimum width */
+            width: 45%;
+            /* Adjust width as needed */
+            min-width: 300px;
+            /* Set a minimum width */
         }
+
         h1 {
             color: #333;
             margin-bottom: 20px;
         }
+
         form {
             display: flex;
             flex-direction: column;
         }
+
         label {
             margin: 10px 0 5px;
         }
-        input, select {
+
+        input,
+        select {
             padding: 10px;
             margin-bottom: 15px;
-            width: calc(100% - 20px); /* Adjust input width as needed */
+            width: calc(100% - 20px);
+            /* Adjust input width as needed */
             border: 1px solid #ccc;
             border-radius: 4px;
         }
+
         button {
             padding: 10px;
             background-color: #28a745;
@@ -57,30 +69,57 @@
             cursor: pointer;
             width: 100%;
         }
+
         button:hover {
             background-color: #218838;
         }
+
         .help-message {
             font-size: 0.9em;
             color: #666;
             margin-top: -10px;
             margin-bottom: 15px;
         }
+
         table {
             width: 100%;
             margin-top: 20px;
             border-collapse: collapse;
         }
-        th, td {
+
+        th,
+        td {
             border: 1px solid #ccc;
             padding: 8px;
             text-align: left;
         }
+
         th {
             background-color: #f2f2f2;
         }
+
+        .checkbox-container {
+            display: flex;
+            /* Use flexbox for horizontal alignment */
+            align-items: baseline;
+            /* Align items vertically center */
+            align-self: flex-start;
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            margin-left: 10px;
+            /* Optional: Add some spacing between checkbox and label */
+        }
+
+        .checkbox-container label {
+            white-space: nowrap;
+            /* Prevent text from wrapping */
+            flex: 1;
+            /* Take up remaining space */
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="card">
@@ -90,7 +129,8 @@
                 <input type="text" id="name" name="name" required>
 
                 <label for="phone">Phone Number:</label>
-                <input type="tel" id="phone" name="phone" pattern="^\+?[0-9\s\-\(\)]+$" placeholder="+1234567890" required>
+                <input type="tel" id="phone" name="phone" pattern="^\+?[0-9\s\-\(\)]+$" placeholder="+1234567890"
+                    required>
 
                 <label for="dob">Date of Birth:</label>
                 <input type="date" id="dob" name="dob" required>
@@ -106,7 +146,10 @@
                 <div class="help-message">
                     Hold down the Ctrl (Windows) or Cmd (Mac) key to select multiple options.
                 </div>
-
+                <div class="checkbox-container">
+                    <label class="checkbox-label" for="emailUpdates">Receive Email Updates</label>
+                    <input type="checkbox" id="emailUpdates" name="emailUpdates">
+                </div>
                 <button type="submit">Submit</button>
             </form>
         </div>
@@ -116,10 +159,12 @@
             <table id="personal-info-table">
                 <thead>
                     <tr>
+                        <th>ID</th>
                         <th>Name</th>
                         <th>Phone Number</th>
                         <th>Date of Birth</th>
                         <th>Interests</th>
+                        <th>Email Updates</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -155,7 +200,6 @@
                 if (!db.objectStoreNames.contains('personal-info')) {
                     const store = db.createObjectStore('personal-info', {
                         keyPath: 'id',
-                        autoIncrement: true,
                     });
 
                     // Create an index on the 'name' property
@@ -167,18 +211,24 @@
             form.addEventListener('submit', function (e) {
                 e.preventDefault();
 
+                // Generate a GUID for the entry
+                const guid = generateGUID();
+
                 // Capture form data
                 const name = document.getElementById('name').value;
                 const phone = document.getElementById('phone').value;
                 const dob = document.getElementById('dob').value;
                 const interests = Array.from(document.getElementById('interests').selectedOptions).map(option => option.value);
+                const emailUpdates = document.getElementById('emailUpdates').checked;
 
                 // Prepare the data to be stored
                 const data = {
+                    id: guid,
                     name,
                     phone,
                     dob,
                     interests,
+                    emailUpdates,
                 };
 
                 // Check if db is ready
@@ -206,6 +256,12 @@
                 };
             });
 
+            // Function to generate a GUID
+            function generateGUID() {
+                const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+                return `${s4()}${s4()}-${s4()}-${s4()}-${s4()}-${s4()}${s4()}${s4()}`;
+            }
+
             // Function to display data in the table
             function displayData() {
                 // Clear existing table rows
@@ -224,10 +280,12 @@
                     data.forEach(item => {
                         const row = document.createElement('tr');
                         row.innerHTML = `
+                            <td>${item.id}</td>
                             <td>${item.name}</td>
                             <td>${item.phone}</td>
                             <td>${item.dob}</td>
                             <td>${item.interests.join(', ')}</td>
+                            <td>${item.emailUpdates ? 'Yes' : 'No'}</td>
                         `;
                         tableBody.appendChild(row);
                     });
@@ -240,4 +298,5 @@
         });
     </script>
 </body>
+
 </html>
